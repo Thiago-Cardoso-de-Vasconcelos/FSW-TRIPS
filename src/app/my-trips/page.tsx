@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Prisma } from '@prisma/client';
@@ -20,7 +20,8 @@ const MyTrips = () => {
   const { status, data } = useSession();
   const router = useRouter();
 
-  const fetchReservations = async () => {
+  // Envolva a função fetchReservations em useCallback
+  const fetchReservations = useCallback(async () => {
     try {
       setIsLoading(true); // Inicia o estado de carregamento
       const response = await fetch(
@@ -33,7 +34,7 @@ const MyTrips = () => {
     } finally {
       setIsLoading(false); // Finaliza o estado de carregamento
     }
-  };
+  }, [data?.user]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -41,7 +42,7 @@ const MyTrips = () => {
     } else {
       fetchReservations();
     }
-  }, [status]);
+  }, [status, fetchReservations, router]);
 
   return (
     <div className='container mx-auto p-5'>
